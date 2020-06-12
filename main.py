@@ -100,6 +100,9 @@ def get_args_parser():
     parser.add_argument('--world_size', default=1, type=int,
                         help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
+
+    # new args
+    parser.add_argument('--train_only_head', action='store_true', help='use with pretrained weights')
     return parser
 
 
@@ -190,6 +193,12 @@ def main(args, dataset_train, dataset_val):
         if args.output_dir:
             utils.save_on_master(coco_evaluator.coco_eval["bbox"].eval, output_dir / "eval.pth")
         return
+
+    if args.train_only_head:
+        for param in model_without_ddp.parameters():
+            param.requires_grad = False
+        model.class_embed.weight.requires_grad = True
+        model.class_embed.bias.requires_grad = True
 
     print("Start training")
     start_time = time.time()
