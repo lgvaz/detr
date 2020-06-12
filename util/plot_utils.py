@@ -51,7 +51,7 @@ def plot_logs(logs, fields=('class_error', 'loss_bbox_unscaled', 'mAP'), bbox_on
     for df, color in zip(dfs, sns.color_palette(n_colors=len(logs))):
         for j, field in enumerate(fields):
             if field == 'mAP':
-                col = df.test_coco_eval_bbox is bbox_only else df.test_coco_eval
+                col = df.test_coco_eval_bbox if bbox_only else df.test_coco_eval
                 coco_eval = pd.DataFrame(pd.np.stack(col.dropna().values)[:, 1]).ewm(com=ewm_col).mean()
                 axs[j].plot(coco_eval, c=color)
             else:
